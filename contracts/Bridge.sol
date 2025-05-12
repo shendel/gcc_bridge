@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 import "./ReentrancyGuard.sol";
 import "./Ownable.sol";
 import "./IERC20Burnable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+//import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract GCCBridge is Ownable, ReentrancyGuard {
-    using SafeERC20 for IERC20;
-    IERC20  public token;
+    //using SafeERC20 for IERC20;
+    IERC20Burnable  public token;
     uint256 public refundTimeout = 7 days;
 
     enum RequestStatus {
@@ -59,7 +59,9 @@ contract GCCBridge is Ownable, ReentrancyGuard {
         if (offset >= ids.length) {
             return new Request[](0);
         }
-
+        if (offset == 0 && limit == 0) {
+            limit = ids.length;
+        }
         uint256 available = ids.length - offset;
 
         uint256 size = available > limit ? limit : available;
@@ -79,10 +81,12 @@ contract GCCBridge is Ownable, ReentrancyGuard {
     }
 
     function getRequests(uint256 offset, uint256 limit) public view returns (Request[] memory ret) {
+        if (offset == 0 && limit == 0) {
+            limit = count;
+        }
         if (offset >= count) {
             return new Request[](0);
         }
-
         uint256 available = count - offset;
         uint256 size = available > limit ? limit : available;
 
@@ -96,13 +100,14 @@ contract GCCBridge is Ownable, ReentrancyGuard {
 
     constructor (address bridgeToken) Ownable (msg.sender) {
         require(bridgeToken != address(0), "Invalid token address");
-        token = IERC20(bridgeToken);
+        token = IERC20Burnable(bridgeToken);
     }
 
     function setRefundTimeout(uint256 _time) public onlyOwner {
         refundTimeout = _time;
     }
 
+    event InitBridge(address from, uint256 amount, uint256 requestId);
     function initBridge(uint256 amount) public nonReentrant notContract {
         require(token.allowance(msg.sender, address(this)) >= amount, "allowance");
         require(token.balanceOf(msg.sender) >= amount, "balanceOf");
@@ -124,7 +129,8 @@ contract GCCBridge is Ownable, ReentrancyGuard {
 
         userSwaps[msg.sender].push(requestId);
 
-        token.safeTransferFrom(msg.sender, address(this), amount);
+        token.transferFrom(msg.sender, address(this), amount);
+        emit InitBridge(msg.sender, amount, count);
     }
 
     function approve(uint256 id, string memory outTx) public onlyOracle nonReentrant {
@@ -152,11 +158,24 @@ contract GCCBridge is Ownable, ReentrancyGuard {
         req.remark = remark;
 
         if (action == RejectAction.REFUND) {
-            token.safeTransfer(req.from, req.amount);
+            token.transfer(req.from, req.amount);
         }
         if (action == RejectAction.BURN) {
             IERC20Burnable(address(token)).burn(req.amount);
         }
+        if (action == RejectAction.RESOLVE) {
+            token.transfer(msg.sender, req.amount);
+        }
+    }
+
+    function getSymbol() public view returns (string memory) {
+        return token.symbol();
+    }
+    function getDecimals() public view returns (uint8) {
+        return token.decimals();
+    }
+    function getLockedAmount() public view returns (uint256) {
+        return token.balanceOf(address(this));
     }
 
     function refund(uint256 id) public nonReentrant notContract {
@@ -166,7 +185,7 @@ contract GCCBridge is Ownable, ReentrancyGuard {
         require(block.timestamp >= query[id].inUtx + refundTimeout, "Too early to refund");
 
         query[id].status = RequestStatus.REFUNDED;
-        token.safeTransfer(query[id].from, query[id].amount);
+        token.transfer(query[id].from, query[id].amount);
     }
 
 }

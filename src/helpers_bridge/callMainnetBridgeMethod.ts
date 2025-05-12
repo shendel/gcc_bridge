@@ -1,0 +1,67 @@
+import BridgeJson from "@/../contracts/artifacts/GCCBridge.json"
+import Web3 from 'web3'
+import { calcSendArgWithFee } from "@/helpers/calcSendArgWithFee"
+import { BigNumber } from 'bignumber.js'
+
+const callMainnetBridgeMethod = (options) => {
+  return new Promise((resolve, reject) => {
+    const {
+      activeWeb3,
+      contractAddress,
+      method,
+      args,
+      weiAmount,
+    } = options
+    const onTrx = options.onTrx || (() => {})
+    const onSuccess = options.onSuccess || (() => {})
+    const onError = options.onError || (() => {})
+    const onFinally = options.onFinally || (() => {})
+
+    activeWeb3.eth.getAccounts().then(async (accounts) => {
+      if (accounts.length>0) {
+        const activeWallet = accounts[0]
+        const mpContract = new activeWeb3.eth.Contract(BridgeJson.abi, contractAddress)
+
+        const sendArgs = await calcSendArgWithFee(
+          activeWallet,
+          mpContract,
+          method,
+          args || [],
+          weiAmount
+        )
+        const gasPrice = await activeWeb3.eth.getGasPrice()
+        sendArgs.gasPrice = gasPrice
+
+        mpContract.methods[method](...(args || []))
+          .send(sendArgs)
+          .on('transactionHash', (hash) => {
+            console.log('transaction hash:', hash)
+            onTrx(hash)
+          })
+          .on('error', (error) => {
+            console.log('transaction error:', error)
+            onError(error)
+            reject(error)
+          })
+          .on('receipt', (receipt) => {
+            console.log('transaction receipt:', receipt)
+            onSuccess(receipt)
+          })
+          .then((res) => {
+            resolve(res)
+            onFinally(res)
+          })
+          .catch((err) => {})
+      } else {
+        reject('NO_ACTIVE_ACCOUNT')
+      }
+    }).catch((err) => {
+      console.log('>>> callMPMethod', err)
+      reject(err)
+    })
+  })
+        
+}
+
+
+export default callMainnetBridgeMethod

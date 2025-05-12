@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gray-100 font-sans leading-normal tracking-normal;
+}
+
+.container {
+  @apply mx-auto;
+}
+
+/* ====================== MarkDown ====================== */
+/* Общий контейнер */
+.markdown-container {
+  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; /* Шрифт с засечками для типографского стиля */
+  line-height: 1.6; /* Интервал между строками */
+  color: #333; /* Основной цвет текста */
+  max-width: 800px; /* Максимальная ширина контента */
+  margin: 0 auto; /* Центрирование контента */
+  padding: 20px;
+}
+
+/* Заголовки */
+.markdown-container h1,
+.markdown-container h2,
+.markdown-container h3,
+.markdown-container h4,
+.markdown-container h5,
+.markdown-container h6 {
+  font-weight: bold;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.markdown-container h1 {
+  font-size: 2.5rem; /* Самый крупный заголовок */
+}
+
+.markdown-container h2 {
+  font-size: 2rem;
+}
+
+.markdown-container h3 {
+  font-size: 1.75rem;
+}
+
+.markdown-container h4 {
+  font-size: 1.5rem;
+}
+
+.markdown-container h5 {
+  font-size: 1.25rem;
+}
+
+.markdown-container h6 {
+  font-size: 1rem;
+}
+
+/* Абзацы */
+.markdown-container p {
+  font-size: 1rem; /* Размер текста абзаца */
+  margin-bottom: 1.5rem; /* Отступ между абзацами */
+  text-align: justify; /* Выравнивание текста по ширине */
+}
+
+/* Списки */
+.markdown-container ul,
+.markdown-container ol {
+  margin-left: 1.5rem; /* Отступ слева для списков */
+  margin-bottom: 1.5rem; /* Отступ снизу */
+}
+
+.markdown-container ul {
+  list-style-type: disc; /* Маркеры для неупорядоченных списков */
+}
+
+.markdown-container ol {
+  list-style-type: decimal; /* Нумерация для упорядоченных списков */
+}
+
+.markdown-container li {
+  margin-bottom: 0.5rem; /* Отступ между элементами списка */
+}
+
+/* Ссылки */
+.markdown-container a {
+  color: #007BFF; /* Цвет ссылок */
+  text-decoration: none; /* Убираем подчеркивание */
+  border-bottom: 1px solid #007BFF; /* Добавляем нижнюю границу */
+}
+
+.markdown-container a:hover {
+  color: #0056b3; /* Цвет при наведении */
+  border-bottom-color: #0056b3;
+}
+
+/* Блоки цитат */
+.markdown-container blockquote {
+  border-left: 4px solid #ccc; /* Левая граница для цитат */
+  padding-left: 1rem; /* Отступ слева */
+  color: #666; /* Цвет текста цитат */
+  margin: 1.5rem 0; /* Отступы сверху и снизу */
+  font-style: italic; /* Курсив для цитат */
+}
+
+/* Код */
+.markdown-container code {
+  background-color: #f4f4f4; /* Фон для встроенного кода */
+  padding: 0.2rem 0.4rem; /* Внутренние отступы */
+  border-radius: 4px; /* Скругленные углы */
+  font-family: "Courier New", monospace; /* Моноширинный шрифт */
+  font-size: 0.9rem; /* Размер текста */
+}
+
+.markdown-container pre {
+  background-color: #2d2d2d; /* Фон для блока кода */
+  color: #fff; /* Цвет текста */
+  padding: 1rem; /* Внутренние отступы */
+  border-radius: 4px; /* Скругленные углы */
+  overflow-x: auto; /* Горизонтальная прокрутка */
+  margin-bottom: 1.5rem; /* Отступ снизу */
+}
+
+.markdown-container pre code {
+  background: none; /* Убираем фон внутри блока кода */
+  padding: 0; /* Убираем внутренние отступы */
+}
+
+/* Таблицы */
+.markdown-container table {
+  width: 100%; /* Ширина таблицы */
+  border-collapse: collapse; /* Убираем двойные границы */
+  margin-bottom: 1.5rem; /* Отступ снизу */
+}
+
+.markdown-container th,
+.markdown-container td {
+  border: 1px solid #ddd; /* Границы ячеек */
+  padding: 0.5rem 1rem; /* Внутренние отступы */
+  text-align: left; /* Выравнивание текста */
+}
+
+.markdown-container th {
+  background-color: #f4f4f4; /* Фон заголовков таблицы */
+  font-weight: bold; /* Жирный текст */
+}
+
+/* Изображения */
+.markdown-container img {
+  max-width: 100%; /* Максимальная ширина изображений */
+  height: auto; /* Автоматическая высота */
+  margin: 1.5rem 0; /* Отступы сверху и снизу */
+  border-radius: 4px; /* Скругленные углы */
+}
+
+/* Разделители */
+.markdown-container hr {
+  border: 0; /* Убираем стандартную границу */
+  border-top: 1px solid #ccc; /* Верхняя линия */
+  margin: 2rem 0; /* Отступы сверху и снизу */
+}
