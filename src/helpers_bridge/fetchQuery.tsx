@@ -1,4 +1,5 @@
 import BridgeJson from "@/../contracts/artifacts/GCCBridge.json"
+import TargetBridgeJson from "@/../contracts/artifacts/GCCTargetBridge.json"
 import Web3 from 'web3'
 import { Interface as AbiInterface } from '@ethersproject/abi'
 import { GET_CHAIN_RPC } from '@/web3/chains'
@@ -39,12 +40,44 @@ const fetchQuery = (options) => {
             },
           }
         }).then((mcAnswer) => {
-          resolve({
-            chainId,
-            address,
-            ...mcAnswer,
+          const { requests } = mcAnswer
+          const ids = requests.map(({ id }) => {
+            return id
+          })
+          const targetMulticall = getMultiCall(targetChainId)
+          const targetAbitI = new AbiInterface(TargetBridgeJson.abi)
+          console.log('>>> ids',ids, targetChainAddress)
+          callMulticall({
+            multicall: targetMulticall,
+            target: targetChainAddress,
+            encoder: targetAbitI,
+            calls: {
+              info: {
+                func: 'getRequestsById', args: [ ids ], asArray: true 
+              }
+            }
+          }).then(({ info }) => {
+            console.log('>>> TARGET INFO', info)
+            const infoById = {}
+            info.map((inf) => {
+              infoById[inf.id] = inf
+            })
+            resolve({
+              chainId,
+              address,
+              requests: requests.map((request) => {
+                return {
+                  ...request,
+                  target: infoById[request.id]
+                }
+              })
+            })
+          }).catch((err) => {
+            console.log('fail fetch target info', err)
+            reject(err)
           })
         }).catch((err) => {
+          
           console.log('>>> Fail fetch all info', err)
           reject(err)
         })

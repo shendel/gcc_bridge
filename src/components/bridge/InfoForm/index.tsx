@@ -15,6 +15,7 @@ import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import { useNotification } from "@/contexts/NotificationContext"
 
 import AcceptRequestModal from './AcceptRequestModal'
+import RejectRequestModal from './RejectRequestModal'
 
 import {
   MAINNET_CHAIN_ID,
@@ -97,6 +98,20 @@ const InfoForm = (props) => {
     })
   }
   
+  const confirmRejectRequest = () => {
+    openModal({
+      title: `Reject bridge request #${requestId}`,
+      hideBottomButtons: true,
+      fullWidth: true,
+      id: 'REJECT_REQUEST',
+      content: (
+        <RejectRequestModal
+          requestId={requestId}
+        />
+      )
+    })
+  }
+  
   const redStatus = (sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0) ? true : false
   const requestStatus = (sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0)
     ? `Step 1 Ready. Tokens burned. Need finish step - 2`
@@ -131,6 +146,20 @@ const InfoForm = (props) => {
             disabled={true}
             error={redStatus}
           />
+          {sourceRequest.status == REQUEST_STATUS.REJECT && (
+            <>
+              <Label>{`Reject reason`}</Label>
+              <Input
+                value={sourceRequest.remark}
+                disabled={true}
+              />
+              <Label>{`Action at reject`}</Label>
+              <Input
+                value={REJECT_ACTIONS_LABELS[sourceRequest.action]}
+                disabled={true}
+              />
+            </>
+          )}          
           {(sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0) && (
             <div className="mt-2">
               <Button color={`green`} fullWidth={true} onClick={confirmAcceptRequest}>
@@ -143,7 +172,9 @@ const InfoForm = (props) => {
               <Button color={`green`} onClick={confirmAcceptRequest}>
                 {`Accept request`}
               </Button>
-              <Button color={`red`}>{`Reject request`}</Button>
+              <Button color={`red`} onClick={confirmRejectRequest}>
+                {`Reject request`}
+              </Button>
             </div>
           )}
           

@@ -23,6 +23,13 @@ import {
 } from '@/components/appconfig/ui/Table'
 
 import {
+  REQUEST_STATUS_LABELS,
+  REQUEST_STATUS,
+  REJECT_ACTIONS_LABELS,
+  REJECT_ACTIONS
+} from '@/helpers_bridge/constants'
+
+import {
   MAINNET_CHAIN_ID,
   MAINNET_CONTRACT,
   TARGET_CHAIN_ID,
@@ -68,10 +75,11 @@ export default function Admin(props) {
       chainId: MAINNET_CHAIN_ID,
       address: MAINNET_CONTRACT,
       targetChainId: TARGET_CHAIN_ID,
-      targetAddress: TARGET_CHAIN_CONTRACT,
+      targetChainAddress: TARGET_CHAIN_CONTRACT,
       offset: page * perPage,
       limit: perPage
     }).then(({ requests } ) => {
+      console.log('>>> requests', requests)
       setItems(requests)
     }).catch((err) => {
       console.log('>>> Fail', err)
@@ -129,10 +137,10 @@ export default function Admin(props) {
                     <>
                       {items.map((item) => {
                         const {
-                          amount, from, id, inUtx, status
+                          amount, from, id, inUtx, status, target
                         } = item
                         return (
-                          <TableRow>
+                          <TableRow key={id}>
                             <TableCell>{id}</TableCell>
                             <TableCell>{inUtx}</TableCell>
                             <TableCell>
@@ -145,7 +153,26 @@ export default function Admin(props) {
                               </a>
                             </TableCell>
                             <TableCell>{fromWei(amount, tokenDecimals)}</TableCell>
-                            <TableCell>{status}</TableCell>
+                            <TableCell>
+                              {(status == REQUEST_STATUS.READY && target && target.id == id) ? (
+                                <span className="text-green-500 font-bold">{`Ready`}</span>
+                              ) : (
+                                <>
+                                  {status == REQUEST_STATUS.READY && (!target || target.id == 0) && (
+                                    <span className="text-cyan-700 font-bold">{`Not finished`}</span>
+                                  )}
+                                  {status == REQUEST_STATUS.PENDING && (
+                                    <span className="text-blue-600 font-bold">{`Pengind`}</span>
+                                  )}
+                                  {status == REQUEST_STATUS.REJECT && (
+                                    <span className="text-red-500 font-bold">{`Rejected`}</span>
+                                  )}
+                                  {status == REQUEST_STATUS.REFUNDED && (
+                                    <span className="text-cyan-700 font-bold">{`Refunded`}</span>
+                                  )}
+                                </>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <Button onClick={() => { handleOpenInfo(id) }}>{`Info`}</Button>
                             </TableCell>

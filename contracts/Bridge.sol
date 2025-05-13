@@ -8,7 +8,7 @@ import "./IERC20Burnable.sol";
 contract GCCBridge is Ownable, ReentrancyGuard {
     //using SafeERC20 for IERC20;
     IERC20Burnable  public token;
-    uint256 public refundTimeout = 7 days;
+    uint256 public refundTimeout = 1 hours; //7 days;
 
     enum RequestStatus {
         PENDING,
@@ -18,6 +18,7 @@ contract GCCBridge is Ownable, ReentrancyGuard {
     }
 
     enum RejectAction {
+        NONE,
         REFUND,
         BURN,
         RESOLVE
@@ -32,6 +33,7 @@ contract GCCBridge is Ownable, ReentrancyGuard {
         uint256             outUtx;
         string              outTx;
         RequestStatus       status;
+        RejectAction        action;
         string              remark;
     }
 
@@ -129,7 +131,8 @@ contract GCCBridge is Ownable, ReentrancyGuard {
             outUtx: 0,
             status: RequestStatus.PENDING,
             outTx: "",
-            remark: ""
+            remark: "",
+            action: RejectAction.NONE
         });
 
         userSwaps[msg.sender].push(requestId);
@@ -161,6 +164,7 @@ contract GCCBridge is Ownable, ReentrancyGuard {
 
         req.status = RequestStatus.REJECT;
         req.remark = remark;
+        req.action = action;
 
         if (action == RejectAction.REFUND) {
             token.transfer(req.from, req.amount);

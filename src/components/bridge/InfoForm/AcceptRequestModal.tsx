@@ -70,7 +70,7 @@ const AcceptRequestModal = (props) => {
     switchNetwork,
     isSwitchingNetwork,
   } = useInjectedWeb3()
-  console.log('>>> injectedChainId', injectedChainId)
+
   const { addNotification } = useNotification()
   
   const {
