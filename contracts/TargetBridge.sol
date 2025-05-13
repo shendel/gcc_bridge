@@ -33,6 +33,12 @@ contract GCCTargetBridge is Ownable, ReentrancyGuard {
     function getRequest(uint256 requestId) public view returns (Request memory) {
         return query[requestId];
     }
+    function getRequestsById(uint256[] memory requestsIds) public view returns (Request[] memory ret) {
+        ret = new Request[](requestsIds.length);
+        for (uint256 i = 0; i < requestsIds.length; i++) {
+            ret[i] = query[requestsIds[i]];
+        }
+    }
     constructor (address bridgeToken) Ownable (msg.sender) {
         require(bridgeToken != address(0), "Invalid token address");
         token = IERC20Burnable(bridgeToken);
@@ -43,6 +49,18 @@ contract GCCTargetBridge is Ownable, ReentrancyGuard {
     }
     function getBridgeRate() public view returns (uint256) {
         return bridgeRate;
+    }
+    function getDecimals() public view returns (uint8) {
+        return token.decimals();
+    }
+    function getSymbol() public view returns (string memory) {
+        return token.symbol();
+    }
+    function getOracleBalance() public view returns (uint256) {
+        return token.balanceOf(owner());
+    }
+    function getOracleAllowance() public view returns (uint256) {
+        return token.allowance(owner(), address(this));
     }
     event BridgeIn(uint256 id, address to, uint256 inAmount, uint256 rate, uint256 outAmount);
     function bridgeIn(uint256 id, address to, uint256 inAmount) public onlyOracle nonReentrant notContract {

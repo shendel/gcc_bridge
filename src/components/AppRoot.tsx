@@ -6,11 +6,14 @@ import InjectedWeb3Provider from '@/web3/InjectedWeb3Provider'
 import ConfirmationModal from "./ConfirmationModal";
 import NotificationProvider from "@/contexts/NotificationContext"
 import MainnetBridgeProvider from '@/contexts/MainnetBridgeContext'
+import TargetBridgeProvider from '@/contexts/TargetBridgeContext'
 
 import NETWORKS from '@/constants/NETWORKS'
 import {
   MAINNET_CHAIN_ID,
-  MAINNET_CONTRACT
+  MAINNET_CONTRACT,
+  TARGET_CHAIN_ID,
+  TARGET_CHAIN_CONTRACT
 } from '@/config'
 
 const allChainIds = Object.keys(NETWORKS).map((slug) => {
@@ -23,7 +26,7 @@ export default function AppRoot(props) {
   } = props
 
   const chainId = MAINNET_CHAIN_ID
-  const chainIds = [MAINNET_CHAIN_ID]
+  const chainIds = [MAINNET_CHAIN_ID, TARGET_CHAIN_ID]
 
   const [ workChainId, setWorkChainId ] = useState(chainId)
   const [ allowedChainIds, setAllowedChainIds ] = useState(chainIds)
@@ -34,11 +37,13 @@ export default function AppRoot(props) {
       <NotificationProvider>
         <Web3Connector chainIds={allowedChainIds} autoConnect={true}>
           <InjectedWeb3Provider chainId={workChainId} chainIds={allowedChainIds}>
-            <ConfirmationModal>
-              <MainnetBridgeProvider chainId={MAINNET_CHAIN_ID} contractAddress={MAINNET_CONTRACT}>
-                {children}
-              </MainnetBridgeProvider>
-            </ConfirmationModal>
+            <MainnetBridgeProvider chainId={MAINNET_CHAIN_ID} contractAddress={MAINNET_CONTRACT}>
+              <TargetBridgeProvider chainId={TARGET_CHAIN_ID} contractAddress={TARGET_CHAIN_CONTRACT}>
+                <ConfirmationModal>
+                  {children}
+                </ConfirmationModal>
+              </TargetBridgeProvider>
+            </MainnetBridgeProvider>
           </InjectedWeb3Provider>
         </Web3Connector>
       </NotificationProvider>
