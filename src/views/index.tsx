@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import HashRouterViews from '@/components/HashRouterViews'
 
 import Home from '@/views/Home'
+import Admin from '@/views/Admin'
 
 
 import Page404 from '@/pages/404'
@@ -22,6 +23,8 @@ import NETWORKS from '@/contstans/NETWORKS'
 function MyBridgeApp(pageProps) {
   const viewsPaths = {
     '/': Home,
+    '/admin': Admin,
+    '/admin/:page': Admin,
   }
 
   return (
