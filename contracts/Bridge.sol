@@ -49,6 +49,9 @@ contract GCCBridge is Ownable, ReentrancyGuard {
         _;
     }
 
+    function getRefundTimeout() public view returns (uint256) {
+        return refundTimeout;
+    }
     function getUserRequests(address user, uint256 offset, uint256 limit)
         public
         view
@@ -97,7 +100,9 @@ contract GCCBridge is Ownable, ReentrancyGuard {
             ret[i] = query[count - offset - i /* id */ ];
         }
     }
-
+    function getRequest(uint256 requestId) public view returns (Request memory) {
+        return query[requestId];
+    }
     constructor (address bridgeToken) Ownable (msg.sender) {
         require(bridgeToken != address(0), "Invalid token address");
         token = IERC20Burnable(bridgeToken);

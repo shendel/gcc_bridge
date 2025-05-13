@@ -13,6 +13,7 @@ import { GET_CHAIN_BYID } from '@/web3/chains'
 import { useNotification } from "@/contexts/NotificationContext";
 import { getTransactionLink, getShortTxHash } from '@/helpers/etherscan'
 import bridgeTokens from '@/helpers_bridge/bridgeTokens'
+import { useMainnetBridge } from '@/contexts/MainnetBridgeContext'
 
 import {
   MAINNET_CONTRACT,
@@ -30,6 +31,12 @@ const Form = (props) => {
     isSwitchingNetwork,
   } = useInjectedWeb3()
 
+  const {
+    contractInfo,
+    isFetching,
+  } = useMainnetBridge()
+  
+  console.log('>>> MainnetBridgeContext', contractInfo)
   const { addNotification } = useNotification();
 
   const [ tokenInfo, setTokenInfo ] = useState(false)

@@ -7,7 +7,7 @@ import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 
 import AppRootWrapper from '@/components/AppRootWrapper'
-import MyGameApp from '@/views/'
+import MyBridgeApp from '@/views/'
 
 function MyApp(pageProps) {
 
@@ -15,7 +15,7 @@ function MyApp(pageProps) {
   return (
     <>
       <AppRootWrapper>
-        <MyGameApp />
+        <MyBridgeApp />
       </AppRootWrapper>
     </>
   )

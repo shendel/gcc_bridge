@@ -5,10 +5,12 @@ import InjectedWeb3Provider from '@/web3/InjectedWeb3Provider'
 
 import ConfirmationModal from "./ConfirmationModal";
 import NotificationProvider from "@/contexts/NotificationContext"
+import MainnetBridgeProvider from '@/contexts/MainnetBridgeContext'
 
 import NETWORKS from '@/constants/NETWORKS'
 import {
   MAINNET_CHAIN_ID,
+  MAINNET_CONTRACT
 } from '@/config'
 
 const allChainIds = Object.keys(NETWORKS).map((slug) => {
@@ -33,7 +35,9 @@ export default function AppRoot(props) {
         <Web3Connector chainIds={allowedChainIds} autoConnect={true}>
           <InjectedWeb3Provider chainId={workChainId} chainIds={allowedChainIds}>
             <ConfirmationModal>
-              {children}
+              <MainnetBridgeProvider chainId={MAINNET_CHAIN_ID} contractAddress={MAINNET_CONTRACT}>
+                {children}
+              </MainnetBridgeProvider>
             </ConfirmationModal>
           </InjectedWeb3Provider>
         </Web3Connector>

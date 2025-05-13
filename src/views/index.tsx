@@ -19,7 +19,7 @@ import Footer from '@/components/Footer'
 
 import NETWORKS from '@/contstans/NETWORKS'
 
-function MyGameApp(pageProps) {
+function MyBridgeApp(pageProps) {
   const viewsPaths = {
     '/': Home,
   }
@@ -44,4 +44,4 @@ function MyGameApp(pageProps) {
   )
 }
 
-export default MyGameApp;
+export default MyBridgeApp;
