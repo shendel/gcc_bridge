@@ -6,6 +6,8 @@ const ConnectWalletButton = () => {
     <div className="w-full p-6">
       <div className="w-full max-w-lg mx-auto">
         <Web3Button
+          connectedView={() => { return null }}
+          wrongChainView={() => { return null }}
           connectView={(isConnecting, openConnectModal) => {
             return (
               <button

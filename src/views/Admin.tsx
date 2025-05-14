@@ -12,6 +12,7 @@ import Button from '@/components/appconfig/ui/Button'
 import Paginator from '@/components/Paginator'
 import InfoForm from '@/components/bridge/InfoForm/'
 import { useConfirmationModal } from '@/components/ConfirmationModal'
+import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
 
 import {
   Table,
@@ -142,7 +143,7 @@ export default function Admin(props) {
                         return (
                           <TableRow key={id}>
                             <TableCell>{id}</TableCell>
-                            <TableCell>{inUtx}</TableCell>
+                            <TableCell>{formatUnixTimestamp(inUtx)}</TableCell>
                             <TableCell>
                               <a
                                 target={`_blank`}

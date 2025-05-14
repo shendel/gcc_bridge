@@ -13,6 +13,7 @@ import { getAddressLink, getTransactionLink, getShortTxHash } from '@/helpers/et
 import { GET_CHAIN_BYID } from '@/web3/chains'
 import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import { useNotification } from "@/contexts/NotificationContext"
+import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
 
 import AcceptRequestModal from './AcceptRequestModal'
 import RejectRequestModal from './RejectRequestModal'
@@ -137,7 +138,7 @@ const InfoForm = (props) => {
           />
           <Label>{`Request date/time`}</Label>
           <Input
-            value={sourceRequest.inUtx}
+            value={formatUnixTimestamp(sourceRequest.inUtx)}
             disabled={true}
           />
           <Label>{`Status`}</Label>

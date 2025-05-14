@@ -43,7 +43,7 @@ const Form = (props) => {
 
   const [ tokenInfo, setTokenInfo ] = useState(false)
   const [amount, setAmount] = useState(0);
-  const [isChecked, setIsChecked] = useState(false);
+  const [ isChecked, setIsChecked] = useState(false);
 
   const [ isBalanceFetching, setIsBalanceFetching ] = useState(false)
   const [ tokenBalance, setTokenBalance ] = useState(0)
@@ -54,11 +54,15 @@ const Form = (props) => {
   const [ tokenAllowance, setTokenAllowance ] = useState(0)
 
   useEffect(() => {
-    fetchTokenInfo(MAINNET_TOKEN, MAINNET_CHAIN_ID).then((tokenInfo) => {
-      console.log('tokenInfo', tokenInfo)
-      setTokenInfo(tokenInfo)
-    }).catch((err) => {})
-  }, [ MAINNET_CHAIN_ID, MAINNET_TOKEN ])
+    if (contractInfo) {
+      setTokenInfo({
+        address: contractInfo.tokenAddress,
+        symbol: contractInfo.tokenSymbol,
+        decimals: contractInfo.tokenDecimals
+      })
+    }
+  }, [ contractInfo ])
+  
   useEffect(() => {
     if (injectedAccount && tokenInfo && tokenInfo.address) {
       setTokenBalance(0)

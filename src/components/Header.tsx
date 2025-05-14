@@ -3,6 +3,7 @@ import { DisconnectWalletButton } from '@/web3/DisconnectWalletButton'
 
 import React, { useState } from "react";
 import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
+import { useMainnetBridge } from '@/contexts/MainnetBridgeContext'
 import { fromWei } from '@/helpers/wei'
 
 import Button from '@/components/ui/Button'
@@ -20,11 +21,23 @@ const Header = () => {
     balance
   } = useInjectedWeb3()
   
+  const {
+    contractInfo: {
+      owner
+    }
+  } = useMainnetBridge()
+  
+  const isOwner = (owner && injectedAccount && owner.toLowerCase() == injectedAccount.toLowerCase()) ? true : false
+
   const menuItems = [
     {
       title: 'Home',
       url: '#/'
     },
+    ...((isOwner) ? [{
+      title: 'Admin',
+      url: '#/admin'
+    }] : [])
   ]
   
   const toggleMenu = () => {
@@ -34,6 +47,8 @@ const Header = () => {
   const disconnectWallet = () => {
     setIsMenuOpen(false); // Закрываем меню после отключения
   };
+  
+  
   return (
     <header
       className="bg-white shadow-md fixed top-0 left-0 right-0 z-50"
