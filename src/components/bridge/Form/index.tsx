@@ -14,6 +14,8 @@ import { useNotification } from "@/contexts/NotificationContext";
 import { getTransactionLink, getShortTxHash } from '@/helpers/etherscan'
 import bridgeTokens from '@/helpers_bridge/bridgeTokens'
 import { useMainnetBridge } from '@/contexts/MainnetBridgeContext'
+import Switcher from '../Switcher'
+import LoadingSplash from '@/components/LoadingSplash'
 
 import {
   MAINNET_CONTRACT,
@@ -175,9 +177,17 @@ const Form = (props) => {
   
   const isNeedApprove = new BigNumber(toWei(amount, tokenInfo.decimals)).isGreaterThan(tokenAllowance)
 
-  if (!tokenInfo) return null
+  if (!tokenInfo) return ( <LoadingSplash /> )
   return (
     <div className="w-full p-6">
+      <Switcher
+        tabs={[
+          { title: `Bridge`, key: 'BRIDGE' },
+          { title: 'History', key: 'HISTORY' }
+        ]}
+        active={`BRIDGE`}
+        onClick={(tab) => { window.location.hash = '/history' }}
+      />
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-lg mx-auto">
         <div>
           <div className="block text-gray-700 font-bold mb-2 text-center text-xl ">

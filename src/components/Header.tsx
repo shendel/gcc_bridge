@@ -42,6 +42,9 @@ const Header = () => {
       {/* Десктопная версия меню */}
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Логотип */}
+        <div className="text-2xl font-bold text-blue-500 pr-8">
+          {`GCC Token Bridge`}
+        </div>
         {/* Мобильная версия (гамбургер-меню) */}
         <div className="md:hidden">
           <button

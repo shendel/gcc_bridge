@@ -12,6 +12,9 @@ import { useMainnetBridge } from '@/contexts/MainnetBridgeContext'
 import { useTargetBridge} from '@/contexts/TargetBridgeContext'
 import { useConfirmationModal } from '@/components/ConfirmationModal'
 import fetchRequest from '@/helpers_bridge/fetchRequest'
+import LoadingSplash from '@/components/LoadingSplash'
+import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
+import Switcher from '../Switcher'
 
 import {
   REQUEST_STATUS_LABELS,
@@ -81,13 +84,24 @@ const RequestInfo = (props) => {
     }).catch((err) => {})
   }, [ requestId ])
 
-  if (!sourceChainInfo || !targetChainInfo) return null
-  if (!sourceRequest) return null
+  if (!sourceChainInfo || !targetChainInfo) return (<LoadingSplash />)
+  if (!sourceRequest) return (<LoadingSplash />)
   if (sourceRequest.from.toLowerCase() !== injectedAccount.toLowerCase()) return on404()
 
   console.log('>>> request info', sourceRequest, targetRequest)
   return (
     <div className="w-full p-6">
+      <Switcher
+        tabs={[
+          { title: `Bridge`, key: 'BRIDGE' },
+          { title: 'History', key: 'HISTORY' }
+        ]}
+        active={`NONE`}
+        onClick={(tab) => {
+          if (tab == 'BRIDGE') window.location.hash = '/'
+          if (tab == 'HISTORY') window.location.hash = '/history'
+        }}
+      />
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-lg mx-auto">
         <div>
           <div className="block text-gray-700 font-bold mb-2 text-center text-xl ">
@@ -102,6 +116,9 @@ const RequestInfo = (props) => {
         <div>
           <div className="block text-gray-700 font-bold text-center text-x2">
             {`Bridge request #${requestId}`}
+          </div>
+          <div className="block text-gray-700 font-bold text-center text-x2">
+            {formatUnixTimestamp(sourceRequest.inUtx)}
           </div>
         </div>
         <div className="pt-2 mt-2 border-t border-stone-500">
@@ -155,17 +172,42 @@ const RequestInfo = (props) => {
             )}
           </div>
         </div>
+        {sourceRequest.status == REQUEST_STATUS.READY && sourceRequest.id == targetRequest.id && (
+          <div className="pt-2 mt-2 border-t border-stone-500">
+            <div className="block text-gray-700 text-right font-bold text-x1 flex justify-between">
+              <span>{`Bridget at`}</span>
+              <span className="text-emerald-600">
+                {formatUnixTimestamp(targetRequest.outUtx)}
+              </span>
+            </div>
+          </div>
+        )}
         {sourceRequest.status == REQUEST_STATUS.REJECT && sourceRequest.remark != "" && (
           <div className="pt-2 mt-2 border-t border-stone-500">
             <div className="block text-gray-700 text-left font-bold text-x1">
               {`Reject reason`}
             </div>
-            <div>
+            <div className="text-red-600 font-bold">
               {sourceRequest.remark}
             </div>
           </div>
         )}
+        <div className="pt-2 mt-2 border-t border-stone-500">
+          {sourceRequest.status == REQUEST_STATUS.PENDING && (Number(sourceRequest.inUtx) + Number(sourceChainInfo.refundTimeout) < sourceTimestamp) && (
+            <div className="pb-2">
+              <Button color={`red`} fullWidth={true} onClick={() => {}}>
+                {`Refund request`}
+              </Button>
+            </div>
+          )}
+          <div>
+            <Button fullWidth={true} onClick={() => { window.location.hash = '/history' }}>
+              {`Back to requests`}
+            </Button>
+          </div>
+        </div>
       </div>
+      
     </div>
   )
 };

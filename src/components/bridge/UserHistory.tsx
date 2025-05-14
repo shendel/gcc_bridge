@@ -12,6 +12,8 @@ import { useMainnetBridge } from '@/contexts/MainnetBridgeContext'
 import { useTargetBridge} from '@/contexts/TargetBridgeContext'
 import { useConfirmationModal } from '@/components/ConfirmationModal'
 import fetchUserRequest from '@/helpers_bridge/fetchUserRequest'
+import LoadingPlaceholder from '@/components/LoadingPlaceholder'
+import Switcher from './Switcher'
 
 import {
   REQUEST_STATUS_LABELS,
@@ -88,6 +90,14 @@ const UserHistory = (props) => {
 
   return (
     <div className="w-full p-6">
+      <Switcher
+        tabs={[
+          { title: `Bridge`, key: 'BRIDGE' },
+          { title: 'History', key: 'HISTORY' }
+        ]}
+        active={`HISTORY`}
+        onClick={(tab) => { window.location.hash = '/' }}
+      />
       <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-lg mx-auto">
         <div>
           <div className="block text-gray-700 font-bold mb-2 text-center text-xl ">
@@ -127,8 +137,14 @@ const UserHistory = (props) => {
                       <div className="flex-none" style={{width: '25%'}}>{`#${id}`}</div>
                       <div className="grow text-center">{formatUnixTimestamp(inUtx)}</div>
                       <div className="flex-none text-right" style={{width: '25%'}}>
-                        {status == REQUEST_STATUS.PENDING && (
-                          <span className="text-emerald-600">{`Pending`}</span>
+                        {status == REQUEST_STATUS.PENDING && (Number(inUtx) + Number(sourceChainInfo.refundTimeout) < sourceTimestamp) ? (
+                          <span className="text-red-600 ">{`Need refund`}</span>
+                        ) : (
+                          <>
+                            {status == REQUEST_STATUS.PENDING && (
+                              <span className="text-emerald-600">{`Pending`}</span>
+                            )}
+                          </>
                         )}
                         {status == REQUEST_STATUS.READY && (target == undefined || target.id == 0) && (
                           <span className="text-emerald-600">{`Processing`}</span>
@@ -156,11 +172,17 @@ const UserHistory = (props) => {
             })}
           </>
         ) : (
-          <div className="pt-2 mt-2 border-t border-stone-500">
-            <div className="block text-gray-700 font-bold text-center text-x2">
-              {`you have no requests`}
-            </div>
-          </div>
+          <>
+            {isFetching ? (
+              <LoadingPlaceholder height="64px" />
+            ) : (
+              <div className="pt-2 mt-2 border-t border-stone-500">
+                <div className="block text-gray-700 font-bold text-center text-x2">
+                  {`you have no requests`}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
