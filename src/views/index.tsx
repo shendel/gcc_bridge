@@ -24,7 +24,7 @@ function MyBridgeApp(pageProps) {
   const viewsPaths = {
     '/': Home,
     '/:subpage': Home,
-    '/:subpage/:requestId': Home,
+    '/:subpage/:pageOrRequest': Home,
     '/admin': Admin,
     '/admin/:page': Admin,
   }

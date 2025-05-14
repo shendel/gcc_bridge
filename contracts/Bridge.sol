@@ -3,12 +3,11 @@ pragma solidity ^0.8.0;
 import "./ReentrancyGuard.sol";
 import "./Ownable.sol";
 import "./IERC20Burnable.sol";
-//import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract GCCBridge is Ownable, ReentrancyGuard {
-    //using SafeERC20 for IERC20;
     IERC20Burnable  public token;
     uint256 public refundTimeout = 1 hours; //7 days;
+    uint256 public minAmount = 1**18;
 
     enum RequestStatus {
         PENDING,
@@ -53,6 +52,9 @@ contract GCCBridge is Ownable, ReentrancyGuard {
 
     function getRefundTimeout() public view returns (uint256) {
         return refundTimeout;
+    }
+    function getMinAmount() public view returns (uint256) {
+        return minAmount;
     }
     function getUserRequests(address user, uint256 offset, uint256 limit)
         public
@@ -113,11 +115,15 @@ contract GCCBridge is Ownable, ReentrancyGuard {
     function setRefundTimeout(uint256 _time) public onlyOwner {
         refundTimeout = _time;
     }
+    function setMinAmount(uint256 _minAmount) public onlyOwner {
+        minAmount = _minAmount;
+    }
 
     event InitBridge(address from, uint256 amount, uint256 requestId);
     function initBridge(uint256 amount) public nonReentrant notContract {
         require(token.allowance(msg.sender, address(this)) >= amount, "allowance");
         require(token.balanceOf(msg.sender) >= amount, "balanceOf");
+        require(amount >= minAmount, "min amount");
 
         count++;
         uint256 requestId = count;

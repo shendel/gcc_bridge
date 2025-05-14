@@ -62,7 +62,7 @@ const RejectRequestModal = (props) => {
       onSuccess: (info) => {
         setIsRejecting(false)
         addNotification('success', `#${requestId} successfull rejected`)
-        closeModal('REJECT_REQUEST')
+        closeModal('REJECT_REQUEST', { data: { needUpdate: true } } )
       },
       onError: () => {
         addNotification('error', 'Fail')

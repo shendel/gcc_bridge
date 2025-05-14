@@ -3,7 +3,7 @@ import TargetBridgeJson from "@/../contracts/artifacts/GCCTargetBridge.json"
 import Web3 from 'web3'
 import { Interface as AbiInterface } from '@ethersproject/abi'
 import { GET_CHAIN_RPC } from '@/web3/chains'
-import getMultiCall from '@/web3/getMultiCall'
+import getMultiCall, { getMultiCallAddress, getMultiCallInterface }from '@/web3/getMultiCall'
 
 import { callMulticall } from '@/helpers/callMulticall'
 import Web3ObjectToArray from "@/helpers/Web3ObjectToArray"
@@ -38,15 +38,17 @@ const fetchQuery = (options) => {
             requests: {
               func: 'getRequests', args: [ offset, limit ], asArray: true
             },
+            sourceTimestamp: {
+              func: 'getCurrentBlockTimestamp', target: getMultiCallAddress(chainId), encoder: getMultiCallInterface()
+            }
           }
         }).then((mcAnswer) => {
-          const { requests } = mcAnswer
+          const { requests, sourceTimestamp } = mcAnswer
           const ids = requests.map(({ id }) => {
             return id
           })
           const targetMulticall = getMultiCall(targetChainId)
           const targetAbitI = new AbiInterface(TargetBridgeJson.abi)
-          console.log('>>> ids',ids, targetChainAddress)
           callMulticall({
             multicall: targetMulticall,
             target: targetChainAddress,
@@ -54,10 +56,12 @@ const fetchQuery = (options) => {
             calls: {
               info: {
                 func: 'getRequestsById', args: [ ids ], asArray: true 
+              },
+              targetTimestamp: {
+                func: 'getCurrentBlockTimestamp', target: getMultiCallAddress(targetChainId), encoder: getMultiCallInterface()
               }
             }
-          }).then(({ info }) => {
-            console.log('>>> TARGET INFO', info)
+          }).then(({ info, targetTimestamp }) => {
             const infoById = {}
             info.map((inf) => {
               infoById[inf.id] = inf
@@ -65,6 +69,8 @@ const fetchQuery = (options) => {
             resolve({
               chainId,
               address,
+              sourceTimestamp,
+              targetTimestamp,
               requests: requests.map((request) => {
                 return {
                   ...request,

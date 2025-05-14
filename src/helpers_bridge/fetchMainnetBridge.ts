@@ -2,11 +2,11 @@ import BridgeJson from "@/../contracts/artifacts/GCCBridge.json"
 import Web3 from 'web3'
 import { Interface as AbiInterface } from '@ethersproject/abi'
 import { GET_CHAIN_RPC } from '@/web3/chains'
-import getMultiCall from '@/web3/getMultiCall'
 
 import { callMulticall } from '@/helpers/callMulticall'
 import Web3ObjectToArray from "@/helpers/Web3ObjectToArray"
 import { fromWei } from '@/helpers/wei'
+import getMultiCall, { getMultiCallAddress, getMultiCallInterface }from '@/web3/getMultiCall'
 
 const fetchMainnetBridge = (options) => {
   const {
@@ -37,6 +37,9 @@ const fetchMainnetBridge = (options) => {
             tokenAddress:               { func: 'token' },
             queryLength:                { func: 'getQueryLength' },
             refundTimeout:              { func: 'getRefundTimeout' },
+            timestamp: {
+              func: 'getCurrentBlockTimestamp', target: getMultiCallAddress(chainId), encoder: getMultiCallInterface()
+            }
           }
         }).then((mcAnswer) => {
           resolve({

@@ -61,32 +61,52 @@ export default function Admin(props) {
     contractInfo: {
       queryLength,
       tokenSymbol,
-      tokenDecimals
+      tokenDecimals,
+      refundTimeout
     },
     isFetching,
   } = useMainnetBridge()
   
-  const perPage = 20
+  const perPage = 5
   const [ items, setItems ] = useState([])
   const [ isFetchingItems, setIsFetchingItems ] = useState(false)
+  const [ sourceTimestamp, setSourceTimestamp ] = useState(0)
+  const [ needUpdate, setNeedUpdate ] = useState(false)
+
+  const _fetchItems = () => {
+    return new Promise((resolve, reject) => {
+      fetchQuery({
+        chainId: MAINNET_CHAIN_ID,
+        address: MAINNET_CONTRACT,
+        targetChainId: TARGET_CHAIN_ID,
+        targetChainAddress: TARGET_CHAIN_CONTRACT,
+        offset: page * perPage,
+        limit: perPage
+      }).then(( answer ) => {
+        console.log('>> FETCHED')
+        const { requests, sourceTimestamp } = answer
+        setSourceTimestamp(Number(sourceTimestamp))
+        setItems(requests)
+        resolve()
+      }).catch((err) => {
+        console.log('>>> Fail', err)
+        reject(err)
+      })
+    })
+  }
+  useEffect(() => {
+    if (needUpdate) {
+      setNeedUpdate(false)
+      _fetchItems()
+    }
+  }, [ needUpdate ])
   
   useEffect(() => {
     setIsFetchingItems(true)
-    fetchQuery({
-      chainId: MAINNET_CHAIN_ID,
-      address: MAINNET_CONTRACT,
-      targetChainId: TARGET_CHAIN_ID,
-      targetChainAddress: TARGET_CHAIN_CONTRACT,
-      offset: page * perPage,
-      limit: perPage
-    }).then(({ requests } ) => {
-      console.log('>>> requests', requests)
-      setItems(requests)
-    }).catch((err) => {
-      console.log('>>> Fail', err)
-    }).finally(() => {
-      setIsFetchingItems(false)
-    })
+    _fetchItems()
+      .finally(() => {
+        setIsFetchingItems(false)
+      })
   }, [
     MAINNET_CHAIN_ID,
     MAINNET_CONTRACT,
@@ -102,6 +122,9 @@ export default function Admin(props) {
       hideBottomButtons: true,
       fullWidth: true,
       id: 'REQUEST_INFO',
+      onClose: () => {
+        setNeedUpdate(true)
+      },
       content: (
         <InfoForm
           requestId={requestId}
@@ -110,7 +133,7 @@ export default function Admin(props) {
     })
   }
   
-  if (isFetchingItems || isFetching) {
+  if (isFetching) {
     return (
       <LoadingSplash />
     )
@@ -122,6 +145,7 @@ export default function Admin(props) {
         <ConnectWalletButton />
       ) : (
         <>
+          {isFetchingItems && ( <LoadingSplash /> )}
           {contractInfo.owner.toLowerCase() == injectedAccount.toLowerCase() ? (
             <>
               <Table>
@@ -162,8 +186,14 @@ export default function Admin(props) {
                                   {status == REQUEST_STATUS.READY && (!target || target.id == 0) && (
                                     <span className="text-cyan-700 font-bold">{`Not finished`}</span>
                                   )}
-                                  {status == REQUEST_STATUS.PENDING && (
-                                    <span className="text-blue-600 font-bold">{`Pengind`}</span>
+                                  {status == REQUEST_STATUS.PENDING && (Number(inUtx) + Number(refundTimeout) < sourceTimestamp) ? (
+                                    <span className="text-red-600 font-bold">{`Need refund`}</span>
+                                  ) : (
+                                    <>
+                                      {status == REQUEST_STATUS.PENDING && (
+                                        <span className="text-blue-600 font-bold">{`Pengind`}</span>
+                                      )}
+                                    </>
                                   )}
                                   {status == REQUEST_STATUS.REJECT && (
                                     <span className="text-red-500 font-bold">{`Rejected`}</span>

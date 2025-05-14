@@ -36,6 +36,9 @@ const fetchUserRequest = (options) => {
           target: address,
           encoder: abiI,
           calls: {
+            totalCount: {
+              func: 'getUserRequestsCount', args: [ user ]
+            },
             requests: {
               func: 'getUserRequests', args: [ user, offset, limit ], asArray: true
             },
@@ -44,13 +47,12 @@ const fetchUserRequest = (options) => {
             }
           }
         }).then((mcAnswer) => {
-          const { requests, sourceTimestamp } = mcAnswer
+          const { requests, sourceTimestamp, totalCount } = mcAnswer
           const ids = requests.map(({ id }) => {
             return id
           })
           const targetMulticall = getMultiCall(targetChainId)
           const targetAbitI = new AbiInterface(TargetBridgeJson.abi)
-          console.log('>>> ids',ids, targetChainAddress)
           callMulticall({
             multicall: targetMulticall,
             target: targetChainAddress,
@@ -64,7 +66,6 @@ const fetchUserRequest = (options) => {
               }
             }
           }).then(({ info, targetTimestamp }) => {
-            console.log('>>> TARGET INFO', info)
             const infoById = {}
             info.map((inf) => {
               infoById[inf.id] = inf
@@ -74,6 +75,7 @@ const fetchUserRequest = (options) => {
               address,
               sourceTimestamp,
               targetTimestamp,
+              totalCount,
               requests: requests.map((request) => {
                 return {
                   ...request,

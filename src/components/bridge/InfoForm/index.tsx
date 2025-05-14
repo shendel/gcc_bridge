@@ -14,6 +14,7 @@ import { GET_CHAIN_BYID } from '@/web3/chains'
 import { useInjectedWeb3 } from '@/web3/InjectedWeb3Provider'
 import { useNotification } from "@/contexts/NotificationContext"
 import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
+import LoadingSplash from '@/components/LoadingSplash'
 
 import AcceptRequestModal from './AcceptRequestModal'
 import RejectRequestModal from './RejectRequestModal'
@@ -64,22 +65,29 @@ const InfoForm = (props) => {
   const [ sourceRequest, setSourceRequest ] = useState(false)
   const [ targetRequest, setTargetRequest ] = useState(false)
   const [ requestFetched, setRequestFetched ] = useState(false)
+  const [ requestFetching, setRequestFetching ] = useState(true)
+  const [ needUpdate, setNeedUpdate ] = useState(true)
 
   useEffect(() => {
-    setRequestFetched(false)
-    fetchRequest({
-      requestId,
-      chainId: MAINNET_CHAIN_ID,
-      address: MAINNET_CONTRACT,
-      targetChainId: TARGET_CHAIN_ID,
-      targetChainAddress: TARGET_CHAIN_CONTRACT,
-    }).then(({ sourceRequest, targetRequest }) => {
-      setRequestFetched(true)
-      console.log(sourceRequest, targetRequest)
-      setSourceRequest(sourceRequest)
-      setTargetRequest(targetRequest)
-    }).catch((err) => {})
-  }, [ requestId ])
+    if (needUpdate) {
+      setNeedUpdate(false)
+      setRequestFetching(true)
+      console.log('>>> update')
+      fetchRequest({
+        requestId,
+        chainId: MAINNET_CHAIN_ID,
+        address: MAINNET_CONTRACT,
+        targetChainId: TARGET_CHAIN_ID,
+        targetChainAddress: TARGET_CHAIN_CONTRACT,
+      }).then(({ sourceRequest, targetRequest }) => {
+        setRequestFetched(true)
+        console.log(sourceRequest, targetRequest)
+        setSourceRequest(sourceRequest)
+        setTargetRequest(targetRequest)
+        setRequestFetching(false)
+      }).catch((err) => {})
+    }
+  }, [ requestId, needUpdate ])
 
   if (!mainnetInfo || !targetInfo) return null
   
@@ -89,6 +97,9 @@ const InfoForm = (props) => {
       hideBottomButtons: true,
       fullWidth: true,
       id: 'ACCEPT_REQUEST',
+      onClose: (data) => {
+        setNeedUpdate(true)
+      },
       content: (
         <AcceptRequestModal
           requestId={requestId}
@@ -105,6 +116,11 @@ const InfoForm = (props) => {
       hideBottomButtons: true,
       fullWidth: true,
       id: 'REJECT_REQUEST',
+      onClose: (data) => {
+        if (data && data.needUpdate) {
+          setNeedUpdate(true)
+        }
+      },
       content: (
         <RejectRequestModal
           requestId={requestId}
@@ -113,11 +129,15 @@ const InfoForm = (props) => {
     })
   }
   
-  const redStatus = (sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0) ? true : false
-  const requestStatus = (sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0)
+  let redStatus = (sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0) ? true : false
+  let requestStatus = (sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0)
     ? `Step 1 Ready. Tokens burned. Need finish step - 2`
     : REQUEST_STATUS_LABELS[sourceRequest.status]
-    
+  
+  if (sourceRequest.status == REQUEST_STATUS.PENDING && ((Number(sourceRequest.inUtx) + Number(mainnetInfo.refundTimeout)) < Number(mainnetInfo.timestamp))) {
+    requestStatus = 'Need refund by user'
+    redStatus = true
+  }
   return (
     <>
       {!requestFetched && (
@@ -168,7 +188,7 @@ const InfoForm = (props) => {
               </Button>
             </div>
           )}
-          {sourceRequest.status == REQUEST_STATUS.PENDING && (
+          {sourceRequest.status == REQUEST_STATUS.PENDING && ((Number(sourceRequest.inUtx) + Number(mainnetInfo.refundTimeout)) > Number(mainnetInfo.timestamp)) && ( 
             <div className="grid grid-cols-2 gap-2 mt-2">
               <Button color={`green`} onClick={confirmAcceptRequest}>
                 {`Accept request`}

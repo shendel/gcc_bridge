@@ -32,6 +32,7 @@ export default function ConfirmationModal({ children }) {
       hideBottomButtons: options.hideBottomButtons || false,
       hideCloseButton: options.hideCloseButton || false,
       fullWidth: options.fullWidth || false,
+      onClose: options.onClose || false
     };
     setModals((prev) => [...prev, newModal]); // Добавляем новое окно в массив
   };
@@ -43,6 +44,7 @@ export default function ConfirmationModal({ children }) {
     setModals((prev) =>
       prev.filter((modal) => {
         if (modal.id === id) {
+          if (modal.onClose) modal.onClose(data)
           if (doConfirm && modal.onConfirm) modal.onConfirm(data);
           if (doCancel && modal.onCancel) modal.onCancel(data);
           return false; // Удаляем окно из массива

@@ -14,6 +14,8 @@ import { useConfirmationModal } from '@/components/ConfirmationModal'
 import fetchUserRequest from '@/helpers_bridge/fetchUserRequest'
 import LoadingPlaceholder from '@/components/LoadingPlaceholder'
 import Switcher from './Switcher'
+import Paginator from '@/components/Paginator'
+import LoadingSplash from '@/components/LoadingSplash'
 
 import {
   REQUEST_STATUS_LABELS,
@@ -35,9 +37,12 @@ import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
 const UserHistory = (props) => {
   const {
     requestId,
-    on404
+    on404,
+    page = 0
   } = props
 
+  const perPage = 5
+  
   const {
     injectedWeb3,
     injectedAccount,
@@ -53,8 +58,6 @@ const UserHistory = (props) => {
     contractInfo: targetChainInfo,
   } = useTargetBridge()
   
-  console.log('>>> MainnetBridgeContext', sourceChainInfo)
-  console.log('>>> TargetBridgeContext', targetChainInfo)
   
   const { addNotification } = useNotification();
   const { openModal, closeModal } = useConfirmationModal()
@@ -63,6 +66,8 @@ const UserHistory = (props) => {
   const [ userRequests, setUserRequests ] = useState([])
   const [ sourceTimestamp, setSourceTimestamp ] = useState(0)
   const [ targetTimestamp, setTargetTimestamp ] = useState(0)
+  const [ totalCount, setTotalCount ] = useState(0)
+  
   useEffect(() => {
     setIsFetching(true)
     fetchUserRequest({
@@ -71,21 +76,26 @@ const UserHistory = (props) => {
       user:               injectedAccount,
       targetChainId:      TARGET_CHAIN_ID,
       targetChainAddress: TARGET_CHAIN_CONTRACT,
+      offset: page * perPage,
+      limit: perPage
     }).then((answer) => {
       const {
         sourceTimestamp,
         targetTimestamp,
-        requests
+        requests,
+        totalCount
       } = answer
       console.log('>>> user request', answer)
       setUserRequests(requests)
       setSourceTimestamp(Number(sourceTimestamp))
       setTargetTimestamp(Number(targetTimestamp))
+      setTotalCount(totalCount)
+      
     }).catch((err) => {
     }).finally(() => {
       setIsFetching(false)
     })
-  }, [ injectedAccount ])
+  }, [ injectedAccount, page ])
   if (!sourceChainInfo || !targetChainInfo) return null
 
   return (
@@ -137,6 +147,9 @@ const UserHistory = (props) => {
                       <div className="flex-none" style={{width: '25%'}}>{`#${id}`}</div>
                       <div className="grow text-center">{formatUnixTimestamp(inUtx)}</div>
                       <div className="flex-none text-right" style={{width: '25%'}}>
+                        {status == REQUEST_STATUS.REFUNDED && (
+                          <span className="text-green-600">{`Refunded`}</span>
+                        )}
                         {status == REQUEST_STATUS.PENDING && (Number(inUtx) + Number(sourceChainInfo.refundTimeout) < sourceTimestamp) ? (
                           <span className="text-red-600 ">{`Need refund`}</span>
                         ) : (
@@ -170,6 +183,13 @@ const UserHistory = (props) => {
                 </div>
               )
             })}
+            {isFetching && ( <LoadingSplash /> )}
+            <Paginator
+              page={page}
+              totalItems={totalCount}
+              perPage={perPage}
+              href={`#/history/{page}`}
+            />
           </>
         ) : (
           <>

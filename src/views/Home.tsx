@@ -15,7 +15,7 @@ export default function Home(props) {
     params,
     params: {
       subpage,
-      requestId
+      pageOrRequest,
     },
     on404
   } = props
@@ -23,10 +23,7 @@ export default function Home(props) {
   if (subpage && (['history', 'request'].indexOf(subpage) == -1)) {
     return on404()
   }
-  if (subpage == 'history' && requestId !== undefined) {
-    return on404()
-  }
-  if (subpage == 'request' && (requestId == undefined || isNaN(requestId))) {
+  if (subpage == 'request' && (pageOrRequest == undefined || isNaN(pageOrRequest))) {
     return on404()
   }
   
@@ -47,10 +44,10 @@ export default function Home(props) {
           ) : (
             <>
               {subpage == 'history' && (
-                <UserHistory />
+                <UserHistory page={pageOrRequest}/>
               )}
-              {subpage == 'request' && requestId && (
-                <RequestInfo requestId={requestId} on404={on404} />
+              {subpage == 'request' && pageOrRequest && (
+                <RequestInfo requestId={pageOrRequest} on404={on404} />
               )}
             </>
           )}

@@ -15,6 +15,8 @@ import fetchRequest from '@/helpers_bridge/fetchRequest'
 import LoadingSplash from '@/components/LoadingSplash'
 import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
 import Switcher from '../Switcher'
+import refundRequest from '@/helpers_bridge/refundRequest'
+
 
 import {
   REQUEST_STATUS_LABELS,
@@ -51,10 +53,7 @@ const RequestInfo = (props) => {
   const {
     contractInfo: targetChainInfo,
   } = useTargetBridge()
-  
-  console.log('>>> MainnetBridgeContext', sourceChainInfo)
-  console.log('>>> TargetBridgeContext', targetChainInfo)
-  
+
   const { addNotification } = useNotification();
   const { openModal, closeModal } = useConfirmationModal()
 
@@ -62,35 +61,69 @@ const RequestInfo = (props) => {
   const [ sourceTimestamp, setSourceTimestamp ] = useState(0)
   const [ targetRequest, setTargetRequest ] = useState(false)
   const [ targetTimestamp, setTargetTimestamp ] = useState(0)
-  
+  const [ isFetching, setIsFetching ] = useState(false)
+  const [ needUpdate, setNeedUpdate ] = useState(true)
+  const [ isRefunding, setIsRefunding ] = useState(false)
+
   useEffect(() => {
-    fetchRequest({
-      requestId,
-      address: MAINNET_CONTRACT,
-      chainId: MAINNET_CHAIN_ID,
-      targetChainId: TARGET_CHAIN_ID,
-      targetChainAddress: TARGET_CHAIN_CONTRACT
-    }).then((answer) => {
-      const {
-        sourceRequest,
-        sourceTimestamp,
-        targetRequest,
-        targetTimestamp
-      } = answer
-      setSourceRequest(sourceRequest)
-      setSourceTimestamp(Number(sourceTimestamp))
-      setTargetRequest(targetRequest)
-      setTargetTimestamp(Number(targetTimestamp))
-    }).catch((err) => {})
-  }, [ requestId ])
+    if (needUpdate) {
+      setNeedUpdate(false)
+      setIsFetching(true)
+      fetchRequest({
+        requestId,
+        address: MAINNET_CONTRACT,
+        chainId: MAINNET_CHAIN_ID,
+        targetChainId: TARGET_CHAIN_ID,
+        targetChainAddress: TARGET_CHAIN_CONTRACT
+      }).then((answer) => {
+        const {
+          sourceRequest,
+          sourceTimestamp,
+          targetRequest,
+          targetTimestamp
+        } = answer
+        setSourceRequest(sourceRequest)
+        setSourceTimestamp(Number(sourceTimestamp))
+        setTargetRequest(targetRequest)
+        setTargetTimestamp(Number(targetTimestamp))
+      }).catch((err) => {}).finally(() => {
+        setIsFetching(false)
+      })
+    }
+  }, [ requestId, needUpdate ])
 
   if (!sourceChainInfo || !targetChainInfo) return (<LoadingSplash />)
   if (!sourceRequest) return (<LoadingSplash />)
   if (sourceRequest.from.toLowerCase() !== injectedAccount.toLowerCase()) return on404()
 
-  console.log('>>> request info', sourceRequest, targetRequest)
+  
+  
+  const handleRefund = () => {
+    setIsRefunding(true)
+    addNotification('info', `Refunding request #${requestId} (${fromWei(sourceRequest.amount, sourceChainInfo.tokenDecimals)} ${sourceChainInfo.tokenSymbol}). Confirm transaction`)
+    
+    refundRequest({
+      activeWeb3: injectedWeb3,
+      address: MAINNET_CONTRACT,
+      requestId,
+      onTrx: (txHash) => {
+        addNotification('info', 'Refund transaction', getTransactionLink(MAINNET_CHAIN_ID, txHash), getShortTxHash(txHash))
+      },
+      onSuccess: (info) => {
+        setIsRefunding(false)
+        setNeedUpdate(true)
+        addNotification('success', `Bridge request #${requestId} successfull refunded`)
+      },
+      onError: () => {
+        addNotification('error', 'Fail refund tokens')
+        setIsRefunding(false)
+      }
+    }).catch((err) => {})
+  }
+
   return (
     <div className="w-full p-6">
+      {isFetching && ( <LoadingSplash /> )}
       <Switcher
         tabs={[
           { title: `Bridge`, key: 'BRIDGE' },
@@ -158,8 +191,17 @@ const RequestInfo = (props) => {
         <div className="pt-2 mt-2 border-t border-stone-500">
           <div className="block text-gray-700 text-right font-bold text-x1 flex justify-between">
             <span>{`Request status`}</span>
+            {sourceRequest.status == REQUEST_STATUS.REFUNDED && (
+              <span className="text-green-600">{`Refunded`}</span>
+            )}
             {sourceRequest.status == REQUEST_STATUS.PENDING && (
-              <span className="text-emerald-600">{`Pending`}</span>
+              <>
+                {(Number(sourceRequest.inUtx) + Number(sourceChainInfo.refundTimeout) < sourceTimestamp) ? (
+                  <span className="text-red-600">{`Need refund`}</span>
+                ) : (
+                  <span className="text-emerald-600">{`Pending`}</span>
+                )}
+              </>
             )}
             {sourceRequest.status == REQUEST_STATUS.READY && targetRequest.id == 0 && (
               <span className="text-emerald-600">{`Processing`}</span>
@@ -195,7 +237,7 @@ const RequestInfo = (props) => {
         <div className="pt-2 mt-2 border-t border-stone-500">
           {sourceRequest.status == REQUEST_STATUS.PENDING && (Number(sourceRequest.inUtx) + Number(sourceChainInfo.refundTimeout) < sourceTimestamp) && (
             <div className="pb-2">
-              <Button color={`red`} fullWidth={true} onClick={() => {}}>
+              <Button color={`red`} isLoading={isRefunding} fullWidth={true} onClick={handleRefund}>
                 {`Refund request`}
               </Button>
             </div>

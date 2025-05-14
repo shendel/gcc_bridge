@@ -3,10 +3,9 @@ pragma solidity ^0.8.0;
 import "./ReentrancyGuard.sol";
 import "./Ownable.sol";
 import "./IERC20Burnable.sol";
-//import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract GCCTargetBridge is Ownable, ReentrancyGuard {
-    //using SafeERC20 for IERC20;
+
     IERC20Burnable  public token;
     
     struct Request {
