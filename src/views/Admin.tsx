@@ -67,7 +67,7 @@ export default function Admin(props) {
     isFetching,
   } = useMainnetBridge()
   
-  const perPage = 5
+  const perPage = 20
   const [ items, setItems ] = useState([])
   const [ isFetchingItems, setIsFetchingItems ] = useState(false)
   const [ sourceTimestamp, setSourceTimestamp ] = useState(0)
