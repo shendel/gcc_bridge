@@ -164,7 +164,7 @@ const Form = (props) => {
         } = info
         setIsDepositiong(false)
         addNotification('success', `Bridge request #${requestId} successfull created`)
-        
+        window.location.hash = `/request/${requestId}`
       },
       onError: () => {
         addNotification('error', 'Fail bridge tokens')

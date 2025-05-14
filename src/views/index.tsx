@@ -23,6 +23,8 @@ import NETWORKS from '@/contstans/NETWORKS'
 function MyBridgeApp(pageProps) {
   const viewsPaths = {
     '/': Home,
+    '/:subpage': Home,
+    '/:subpage/:requestId': Home,
     '/admin': Admin,
     '/admin/:page': Admin,
   }

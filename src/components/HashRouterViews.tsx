@@ -48,6 +48,7 @@ export default function HashRouterViews(props) {
     }
   }, [router.asPath, router.events])
 
+  
   const detectView = (hash) => {
     if (!hash) hash = `/`
     let activeView = false

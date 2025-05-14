@@ -3,7 +3,7 @@ import TargetBridgeJson from "@/../contracts/artifacts/GCCTargetBridge.json"
 import Web3 from 'web3'
 import { Interface as AbiInterface } from '@ethersproject/abi'
 import { GET_CHAIN_RPC } from '@/web3/chains'
-import getMultiCall from '@/web3/getMultiCall'
+import getMultiCall, { getMultiCallAddress, getMultiCallInterface }from '@/web3/getMultiCall'
 
 import { callMulticall } from '@/helpers/callMulticall'
 import Web3ObjectToArray from "@/helpers/Web3ObjectToArray"
@@ -16,8 +16,6 @@ const fetchRequest = (options) => {
     chainId,
     targetChainId,
     targetChainAddress,
-    offset,
-    limit
   } = {
     ...options
   }
@@ -39,6 +37,9 @@ const fetchRequest = (options) => {
         sourceRequest: {
           func: 'getRequest', args: [ requestId ]
         },
+        sourceTimestamp: {
+          func: 'getCurrentBlockTimestamp', target: getMultiCallAddress(chainId), encoder: getMultiCallInterface()
+        }
       }
     }).then((mcAnswer) => {
       callMulticall({
@@ -48,6 +49,9 @@ const fetchRequest = (options) => {
         calls: {
           targetRequest: {
             func: 'getRequest', args: [ requestId ]
+          },
+          targetTimestamp: {
+            func: 'getCurrentBlockTimestamp', target: getMultiCallAddress(targetChainId), encoder: getMultiCallInterface()
           }
         }
       }).then((targetAnswer) => {
