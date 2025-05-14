@@ -7,7 +7,7 @@ import Tabs from '@/components/appconfig/ui/Tabs'
 
 import Form from '@/components/bridge/Form/'
 import RequestInfo from '@/components/bridge/RequestInfo'
-
+import UserHistory from '@/components/bridge/UserHistory'
 
 export default function Home(props) {
   const {
@@ -47,9 +47,7 @@ export default function Home(props) {
           ) : (
             <>
               {subpage == 'history' && (
-                <div>
-                  History page
-                </div>
+                <UserHistory />
               )}
               {subpage == 'request' && requestId && (
                 <RequestInfo requestId={requestId} on404={on404} />
