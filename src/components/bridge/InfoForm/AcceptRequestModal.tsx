@@ -120,7 +120,7 @@ const AcceptRequestModal = (props) => {
       activeWeb3: injectedWeb3,
       tokenAddress: targetInfo.tokenAddress,
       approveFor: TARGET_CHAIN_CONTRACT,
-      weiAmount: new BigNumber(sourceRequest.amount).multipliedBy(targetInfo.bridgeRate),
+      weiAmount: `0x` + new BigNumber(sourceRequest.amount).multipliedBy(targetInfo.bridgeRate).toString(16),
       onTrx: (txHash) => {
         addNotification('info', 'Approving transaction', getTransactionLink(TARGET_CHAIN_ID, txHash), getShortTxHash(txHash))
       },
