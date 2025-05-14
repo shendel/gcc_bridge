@@ -16,6 +16,8 @@ import bridgeTokens from '@/helpers_bridge/bridgeTokens'
 import { useMainnetBridge } from '@/contexts/MainnetBridgeContext'
 import Switcher from '../Switcher'
 import LoadingSplash from '@/components/LoadingSplash'
+import { useConfirmationModal } from '@/components/ConfirmationModal'
+import { MarkdownRenderer } from '@/views/MarkDownViewer'
 
 import {
   MAINNET_CONTRACT,
@@ -42,12 +44,14 @@ const Form = (props) => {
   const { addNotification } = useNotification();
 
   const [ tokenInfo, setTokenInfo ] = useState(false)
-  const [amount, setAmount] = useState(0);
+  const [ amount, setAmount ] = useState(0);
   const [ isChecked, setIsChecked] = useState(false);
 
   const [ isBalanceFetching, setIsBalanceFetching ] = useState(false)
   const [ tokenBalance, setTokenBalance ] = useState(0)
 
+  const { openModal, closeModal } = useConfirmationModal()
+  
   const notEnoghtBalance = !!(amount > tokenBalance)
   
   const [ isTokenAllowanceFetching, setIsTokenAllowanceFetching ] = useState(true)
@@ -87,6 +91,22 @@ const Form = (props) => {
   }, [ injectedAccount, tokenInfo ])
   const [ isApproving, setIsApproving ] = useState(false)
   
+  const handleOpenRules = () => {
+    openModal({
+      title: 'Terms and conditions',
+      hideBottomButtons: true,
+      fullWidth: true,
+      id: 'RULES',
+      content: (
+        <>
+          <MarkdownRenderer url={`./rules.md`} noTitle={true} />
+          <div className="flex justify-center">
+            <Button onClick={() => { closeModal('RULES') }}>{`Close`}</Button>
+          </div>
+        </>
+      )
+    })
+  }
   const handleApproveToken = () => {
     addNotification('info', `Approving ${tokenInfo.symbol}. Confirm transaction`)
     setIsApproving(true)
@@ -228,7 +248,7 @@ const Form = (props) => {
             />
             <label htmlFor="termsCheckbox" className="text-gray-700 cursor-pointer">
               I have read and I accept the{" "}
-              <a href="#" className="text-blue-500 underline">
+              <a href="#" className="text-blue-500 underline" onClick={handleOpenRules}>
                 terms and conditions
               </a>
             </label>

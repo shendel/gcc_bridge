@@ -140,33 +140,38 @@ const InfoForm = (props) => {
   }
   return (
     <>
-      {!requestFetched && (
-        <LoadingPlaceholder height="128px" />
-      )}
+      <Label>{`Sended from`}</Label>
+      {requestFetched ? (
+        <Input
+          value={sourceRequest.from}
+          disabled={true}
+          hasLink={getAddressLink(MAINNET_CHAIN_ID, sourceRequest.from)}
+        />
+      ) : (<LoadingPlaceholder height="42px" />)}
+      <Label>{`Amount`}</Label>
+      {requestFetched ? (
+        <Input
+          value={`${fromWei(sourceRequest.amount, mainnetInfo.tokenDecimals)} ${mainnetInfo.tokenSymbol}`}
+          disabled={true}
+        />
+      ) : (<LoadingPlaceholder height="42px" />)}
+      <Label>{`Request date/time`}</Label>
+      {requestFetched ? (
+        <Input
+          value={formatUnixTimestamp(sourceRequest.inUtx)}
+          disabled={true}
+        />
+      ) : (<LoadingPlaceholder height="42px" />)}
+      <Label>{`Status`}</Label>
+      {requestFetched ? (
+        <Input
+          value={requestStatus}
+          disabled={true}
+          error={redStatus}
+        />
+      ) : (<LoadingPlaceholder height="42px" />)}
       {requestFetched && (
         <>
-          <Label>{`Sended from`}</Label>
-          <Input
-            value={sourceRequest.from}
-            disabled={true}
-            hasLink={getAddressLink(MAINNET_CHAIN_ID, sourceRequest.from)}
-          />
-          <Label>{`Amount`}</Label>
-          <Input
-            value={`${fromWei(sourceRequest.amount, mainnetInfo.tokenDecimals)} ${mainnetInfo.tokenSymbol}`}
-            disabled={true}
-          />
-          <Label>{`Request date/time`}</Label>
-          <Input
-            value={formatUnixTimestamp(sourceRequest.inUtx)}
-            disabled={true}
-          />
-          <Label>{`Status`}</Label>
-          <Input
-            value={requestStatus}
-            disabled={true}
-            error={redStatus}
-          />
           {sourceRequest.status == REQUEST_STATUS.REJECT && (
             <>
               <Label>{`Reject reason`}</Label>
@@ -198,18 +203,18 @@ const InfoForm = (props) => {
               </Button>
             </div>
           )}
-          
-          <div className="mt-2">
-            <Button
-              fullWidth={true}
-              color={`gray`}
-              onClick={() => { closeModal('REQUEST_INFO') }}
-            >
-              {`Close`}
-            </Button>
-          </div>
         </>
       )}
+      
+      <div className="mt-2">
+        <Button
+          fullWidth={true}
+          color={`gray`}
+          onClick={() => { closeModal('REQUEST_INFO') }}
+        >
+          {`Close`}
+        </Button>
+      </div>
     </>
   )
 }

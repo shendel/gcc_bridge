@@ -9,11 +9,17 @@ import { useEffect, useState } from "react"
 import AppRootWrapper from '@/components/AppRootWrapper'
 import MyBridgeApp from '@/views/'
 
+import {
+  TITLE
+} from '@/config'
 function MyApp(pageProps) {
 
   
   return (
     <>
+      <Head>
+        <title>{TITLE}</title>
+      </Head>
       <AppRootWrapper>
         <MyBridgeApp />
       </AppRootWrapper>

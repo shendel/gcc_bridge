@@ -13,6 +13,7 @@ import Paginator from '@/components/Paginator'
 import InfoForm from '@/components/bridge/InfoForm/'
 import { useConfirmationModal } from '@/components/ConfirmationModal'
 import formatUnixTimestamp from '@/helpers/formatUnixTimestamp'
+import LoadingIndicator from '@/components/LoadingIndicator'
 
 import {
   Table,
@@ -67,11 +68,12 @@ export default function Admin(props) {
     isFetching,
   } = useMainnetBridge()
   
-  const perPage = 20
+  const perPage = 10
   const [ items, setItems ] = useState([])
   const [ isFetchingItems, setIsFetchingItems ] = useState(false)
   const [ sourceTimestamp, setSourceTimestamp ] = useState(0)
   const [ needUpdate, setNeedUpdate ] = useState(false)
+  const [ isUpdating, setIsUpdating ] = useState(false)
 
   const _fetchItems = () => {
     return new Promise((resolve, reject) => {
@@ -96,8 +98,11 @@ export default function Admin(props) {
   }
   useEffect(() => {
     if (needUpdate) {
+      setIsUpdating(true)
       setNeedUpdate(false)
-      _fetchItems()
+      _fetchItems().finally(() => {
+        setIsUpdating(false)
+      })
     }
   }, [ needUpdate ])
   
@@ -145,6 +150,7 @@ export default function Admin(props) {
         <ConnectWalletButton />
       ) : (
         <>
+          {isUpdating && ( <LoadingIndicator /> )}
           {isFetchingItems && ( <LoadingSplash /> )}
           {contractInfo.owner.toLowerCase() == injectedAccount.toLowerCase() ? (
             <>
