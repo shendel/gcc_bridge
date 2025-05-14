@@ -41,7 +41,7 @@ const RejectRequestModal = (props) => {
     isFetching
   } = useMainnetBridge()
   
-  const [ rejectAction, setRejectAction ] = useState(0)
+  const [ rejectAction, setRejectAction ] = useState(1)
   const [ rejectReason, setRejectReason ] = useState(``)
   
   const [ isRejecting, setIsRejecting ] = useState(false)
@@ -74,9 +74,9 @@ const RejectRequestModal = (props) => {
     <>
       <Label>{`Reject action`}</Label>
       <Select value={rejectAction} setValue={setRejectAction}>
-        <option value={0}>{`Refund (return tokens back to user)`}</option>
-        <option value={1}>{`Burn (destroy tokens)`}</option>
-        <option value={2}>{`Take tokens (send tokens to Oracle ${mainnetInfo.owner})`}</option>
+        <option value={1}>{`Refund (return tokens back to user)`}</option>
+        <option value={2}>{`Burn (destroy tokens)`}</option>
+        <option value={3}>{`Take tokens (send tokens to Oracle ${mainnetInfo.owner})`}</option>
       </Select>
       <Label>{`Reason for reject`}</Label>
       <Input value={rejectReason} setValue={setRejectReason} />

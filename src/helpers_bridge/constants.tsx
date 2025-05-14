@@ -7,9 +7,10 @@ export const REQUEST_STATUS = {
 }
 
 export const REJECT_ACTIONS = {
-  REFUND:   0,
-  BURN:     1,
-  RESOLVE:  2
+  NONE:     0,
+  REFUND:   1,
+  BURN:     2,
+  RESOLVE:  3
 }
 
 export const REQUEST_STATUS_LABELS = {
@@ -20,8 +21,9 @@ export const REQUEST_STATUS_LABELS = {
 }
 
 export const REJECT_ACTIONS_LABELS = {
-  0: 'Refunded to sender',
-  1: 'Burned',
-  2: 'Sended to oracle'
+  0: 'None',
+  1: 'Refunded to sender',
+  2: 'Burned',
+  3: 'Sended to oracle'
 }
 

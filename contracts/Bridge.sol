@@ -163,6 +163,7 @@ contract GCCBridge is Ownable, ReentrancyGuard {
         RejectAction action,
         string memory remark
     ) public onlyOracle nonReentrant {
+        require(action != RejectAction.NONE, "Need reject action");
         require(query[id].id != 0, "Request does not exist");
         require(query[id].status == RequestStatus.PENDING, "not pending");
         
