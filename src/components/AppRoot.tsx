@@ -7,6 +7,7 @@ import ConfirmationModal from "./ConfirmationModal";
 import NotificationProvider from "@/contexts/NotificationContext"
 import MainnetBridgeProvider from '@/contexts/MainnetBridgeContext'
 import TargetBridgeProvider from '@/contexts/TargetBridgeContext'
+import MarkDownProvider from '@/contexts/MarkDownContext'
 
 import NETWORKS from '@/constants/NETWORKS'
 import {
@@ -34,19 +35,21 @@ export default function AppRoot(props) {
 
   return (
     <>
-      <NotificationProvider>
-        <Web3Connector chainIds={allowedChainIds} autoConnect={true}>
-          <InjectedWeb3Provider chainId={workChainId} chainIds={allowedChainIds}>
-            <MainnetBridgeProvider chainId={MAINNET_CHAIN_ID} contractAddress={MAINNET_CONTRACT}>
-              <TargetBridgeProvider chainId={TARGET_CHAIN_ID} contractAddress={TARGET_CHAIN_CONTRACT}>
-                <ConfirmationModal>
-                  {children}
-                </ConfirmationModal>
-              </TargetBridgeProvider>
-            </MainnetBridgeProvider>
-          </InjectedWeb3Provider>
-        </Web3Connector>
-      </NotificationProvider>
+      <MarkDownProvider>
+        <NotificationProvider>
+          <Web3Connector chainIds={allowedChainIds} autoConnect={true}>
+            <InjectedWeb3Provider chainId={workChainId} chainIds={allowedChainIds}>
+              <MainnetBridgeProvider chainId={MAINNET_CHAIN_ID} contractAddress={MAINNET_CONTRACT}>
+                <TargetBridgeProvider chainId={TARGET_CHAIN_ID} contractAddress={TARGET_CHAIN_CONTRACT}>
+                  <ConfirmationModal>
+                    {children}
+                  </ConfirmationModal>
+                </TargetBridgeProvider>
+              </MainnetBridgeProvider>
+            </InjectedWeb3Provider>
+          </Web3Connector>
+        </NotificationProvider>
+      </MarkDownProvider>
     </>
   )
 }

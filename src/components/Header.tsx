@@ -34,6 +34,10 @@ const Header = () => {
       title: 'Home',
       url: '#/'
     },
+    {
+      title: 'About',
+      url: '#/about'
+    },
     ...((isOwner) ? [{
       title: 'Admin',
       url: '#/admin'

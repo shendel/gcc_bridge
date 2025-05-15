@@ -10,6 +10,7 @@ import HashRouterViews from '@/components/HashRouterViews'
 
 import Home from '@/views/Home'
 import Admin from '@/views/Admin'
+import MarkDownViewer from '@/views/MarkDownViewer'
 
 
 import Page404 from '@/pages/404'
@@ -20,6 +21,7 @@ import Footer from '@/components/Footer'
 
 import NETWORKS from '@/contstans/NETWORKS'
 
+import { TITLE } from '@/config'
 function MyBridgeApp(pageProps) {
   const viewsPaths = {
     '/': Home,
@@ -27,6 +29,10 @@ function MyBridgeApp(pageProps) {
     '/:subpage/:pageOrRequest': Home,
     '/admin': Admin,
     '/admin/:page': Admin,
+    '/about': MarkDownViewer({
+      title: `About - ${TITLE}`,
+      url: './about.md'
+    }),
   }
 
   return (
