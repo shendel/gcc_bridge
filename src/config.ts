@@ -1,4 +1,4 @@
-export const TITLE = '1.3 - Bridge GCC Tokens from Etherium to BSC'
+export const TITLE = '1.4 - Bridge GCC Tokens from Etherium to BSC'
 
 /*
 export const MAINNET_CHAIN_ID = 1800500 // 97 //11155111 //56
